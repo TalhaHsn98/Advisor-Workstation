@@ -1,0 +1,121 @@
+[
+  {
+    "id": "sr1",
+    "clientId": "c2",
+    "createdBy": "adv-1",
+    "createdAt": "2026-05-10",
+    "priority": "medium",
+    "status": "pending",
+    "assigneeId": "ops-1",
+    "summary": "Confirm beneficiary update and validate account sign-off.",
+    "history": [
+      {"timestamp":"2026-05-10","user":"adv-1","action":"Request created","note":"Pending review by operations."}
+    ]
+  },
+  {
+    "id": "sr2",
+    "clientId": "c1",
+    "createdBy": "adv-1",
+    "createdAt": "2026-05-14",
+    "priority": "high",
+    "status": "escalated",
+    "assigneeId": "ops-2",
+    "summary": "Urgent transfer compliance escalation for asset reallocation.",
+    "history": [
+      {"timestamp":"2026-05-14","user":"adv-1","action":"Request created","note":"Client requested next-day processing."},
+      {"timestamp":"2026-05-15","user":"ops-2","action":"Escalated","note":"Compliance review needed."}
+    ]
+  },
+  {
+    "id": "sr3",
+    "clientId": "c2",
+    "createdBy": "adv-1",
+    "createdAt": "2026-05-05",
+    "priority": "low",
+    "status": "open",
+    "assigneeId": "ops-1",
+    "summary": "Review quarterly statement delivery preferences.",
+    "history": [
+      {"timestamp":"2026-05-05","user":"adv-1","action":"Request created","note":"Client prefers email updates."}
+    ]
+  },
+  {
+    "id": "sr4",
+    "clientId": "c5",
+    "createdBy": "adv-1",
+    "createdAt": "2026-05-18",
+    "priority": "high",
+    "status": "open",
+    "assigneeId": "ops-3",
+    "summary": "Finalize onboarding paperwork and ID verification.",
+    "history": [
+      {"timestamp":"2026-05-18","user":"adv-1","action":"Request created","note":"Client is waiting on final signature."}
+    ]
+  },
+  {
+    "id": "sr5",
+    "clientId": "c11",
+    "createdBy": "adv-1",
+    "createdAt": "2026-05-17",
+    "priority": "medium",
+    "status": "pending",
+    "assigneeId": "ops-1",
+    "summary": "Confirm account activation after beneficiary update.",
+    "history": [
+      {"timestamp":"2026-05-17","user":"adv-1","action":"Request created","note":"Operations to validate paperwork."}
+    ]
+  },
+  {
+    "id": "sr6",
+    "clientId": "c18",
+    "createdBy": "adv-1",
+    "createdAt": "2026-05-16",
+    "priority": "high",
+    "status": "open",
+    "assigneeId": "ops-4",
+    "summary": "Process new transfer request and confirm funding source.",
+    "history": [
+      {"timestamp":"2026-05-16","user":"adv-1","action":"Request created","note":"Transfer form submitted."}
+    ]
+  },
+  {
+    "id": "sr7",
+    "clientId": "c23",
+    "createdBy": "adv-1",
+    "createdAt": "2026-05-13",
+    "priority": "low",
+    "status": "closed",
+    "assigneeId": "ops-2",
+    "summary": "Update statement delivery schedule.",
+    "history": [
+      {"timestamp":"2026-05-13","user":"adv-1","action":"Request created","note":"Client wanted quarterly paperless statements."},
+      {"timestamp":"2026-05-14","user":"ops-2","action":"Closed","note":"Delivery schedule updated."}
+    ]
+  },
+  {
+    "id": "sr8",
+    "clientId": "c29",
+    "createdBy": "adv-1",
+    "createdAt": "2026-05-19",
+    "priority": "high",
+    "status": "pending",
+    "assigneeId": "ops-1",
+    "summary": "Gather transfer paperwork for incoming account assets.",
+    "history": [
+      {"timestamp":"2026-05-19","user":"adv-1","action":"Request created","note":"Waiting on asset validation."}
+    ]
+  },
+  {
+    "id": "sr9",
+    "clientId": "c24",
+    "createdBy": "adv-1",
+    "createdAt": "2026-05-20",
+    "priority": "medium",
+    "status": "open",
+    "assigneeId": "ops-3",
+    "summary": "Confirm international allocation exposure and documentation.",
+    "history": [
+      {"timestamp":"2026-05-20","user":"adv-1","action":"Request created","note":"Client wants a side-by-side allocation summary."}
+    ]
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {"id":"t1","title":"Follow up: onboarding docs","clientId":"c5","dueDate":"2026-05-22","priority":"high","status":"open"},
+  {"id":"t2","title":"Call about portfolio review","clientId":"c3","dueDate":"2026-05-25","priority":"medium","status":"open"},
+  {"id":"t3","title":"Confirm updated beneficiary designations","clientId":"c12","dueDate":"2026-05-24","priority":"medium","status":"open"},
+  {"id":"t4","title":"Schedule client meeting for Roth conversion analysis","clientId":"c17","dueDate":"2026-05-26","priority":"low","status":"open"},
+  {"id":"t5","title":"Review tax-loss harvesting for taxable account","clientId":"c6","dueDate":"2026-05-28","priority":"medium","status":"open"},
+  {"id":"t6","title":"Send draft estate planning summary","clientId":"c3","dueDate":"2026-05-27","priority":"low","status":"in_progress"},
+  {"id":"t7","title":"Confirm statement delivery preferences","clientId":"c8","dueDate":"2026-05-29","priority":"low","status":"open"},
+  {"id":"t8","title":"Collect KYC documentation","clientId":"c11","dueDate":"2026-05-23","priority":"high","status":"open"},
+  {"id":"t9","title":"Follow up on onboarding eligibility materials","clientId":"c18","dueDate":"2026-05-25","priority":"high","status":"open"},
+  {"id":"t10","title":"Review bond ladder recommendations","clientId":"c16","dueDate":"2026-05-30","priority":"medium","status":"open"},
+  {"id":"t11","title":"Prepare client summary for next meeting","clientId":"c20","dueDate":"2026-05-29","priority":"medium","status":"open"},
+  {"id":"t12","title":"Obtain signed transfer paperwork","clientId":"c29","dueDate":"2026-05-31","priority":"high","status":"open"}
+]

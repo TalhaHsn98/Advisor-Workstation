@@ -1,0 +1,20 @@
+[
+  {"id":"i1","clientId":"c1","type":"call","date":"2026-05-18","advisorId":"adv-1","summary":"Discussed risk profile updates."},
+  {"id":"i2","clientId":"c2","type":"meeting","date":"2026-05-15","advisorId":"adv-1","summary":"Quarterly review."},
+  {"id":"i3","clientId":"c3","type":"email","date":"2026-05-12","advisorId":"adv-1","summary":"Sent draft allocation proposal."},
+  {"id":"i4","clientId":"c4","type":"call","date":"2026-05-14","advisorId":"adv-1","summary":"Reviewed rollover timeline for retirement account."},
+  {"id":"i5","clientId":"c5","type":"meeting","date":"2026-05-16","advisorId":"adv-1","summary":"Reviewed onboarding checklist and next steps."},
+  {"id":"i6","clientId":"c6","type":"call","date":"2026-05-17","advisorId":"adv-1","summary":"Discussed tax planning and year-end distributions."},
+  {"id":"i7","clientId":"c7","type":"meeting","date":"2026-05-13","advisorId":"adv-1","summary":"Explored sustainable investment options."},
+  {"id":"i8","clientId":"c8","type":"email","date":"2026-05-15","advisorId":"adv-1","summary":"Confirmed quarterly statement preferences."},
+  {"id":"i9","clientId":"c9","type":"call","date":"2026-05-16","advisorId":"adv-1","summary":"Validated cash flow assumptions for Q3."},
+  {"id":"i10","clientId":"c10","type":"meeting","date":"2026-05-17","advisorId":"adv-1","summary":"Reviewed municipal bond ladder proposal."},
+  {"id":"i11","clientId":"c11","type":"call","date":"2026-05-18","advisorId":"adv-1","summary":"Clarified signature requirements for new accounts."},
+  {"id":"i12","clientId":"c12","type":"email","date":"2026-05-19","advisorId":"adv-1","summary":"Sent updated beneficiary documentation."},
+  {"id":"i13","clientId":"c13","type":"meeting","date":"2026-05-20","advisorId":"adv-1","summary":"Reviewed private equity exposure and cash needs."},
+  {"id":"i14","clientId":"c14","type":"call","date":"2026-05-20","advisorId":"adv-1","summary":"Recommended dividend growth exposure."},
+  {"id":"i15","clientId":"c15","type":"email","date":"2026-05-21","advisorId":"adv-1","summary":"Sent appointment reminder and agenda."},
+  {"id":"i16","clientId":"c16","type":"call","date":"2026-05-21","advisorId":"adv-1","summary":"Discussed fixed income ladder adjustments."},
+  {"id":"i17","clientId":"c18","type":"meeting","date":"2026-05-14","advisorId":"adv-1","summary":"Onboarding review and documents check."},
+  {"id":"i18","clientId":"c19","type":"call","date":"2026-05-15","advisorId":"adv-1","summary":"Corporate action notice reviewed."}
+]

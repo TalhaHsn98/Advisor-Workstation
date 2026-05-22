@@ -1,0 +1,10 @@
+[
+  {"id":"a1","clientId":"c1","type":"cashflow","severity":"medium","message":"Large cash withdrawal flagged for follow-up.","createdAt":"2026-05-20"},
+  {"id":"a2","clientId":"c2","type":"kyc","severity":"high","message":"KYC docs expired; request renewal.","createdAt":"2026-05-19"},
+  {"id":"a3","clientId":"c5","type":"onboarding","severity":"high","message":"Onboarding packet incomplete for new account.","createdAt":"2026-05-18"},
+  {"id":"a4","clientId":"c11","type":"operations","severity":"medium","message":"Account signature page still outstanding.","createdAt":"2026-05-17"},
+  {"id":"a5","clientId":"c18","type":"compliance","severity":"high","message":"KYC verification pending for new transfer.","createdAt":"2026-05-16"},
+  {"id":"a6","clientId":"c20","type":"rebalancing","severity":"low","message":"Portfolio drift needs review after recent market move.","createdAt":"2026-05-15"},
+  {"id":"a7","clientId":"c23","type":"service","severity":"medium","message":"Statement delivery preference needs confirmation.","createdAt":"2026-05-14"},
+  {"id":"a8","clientId":"c29","type":"onboarding","severity":"medium","message":"Transfer paperwork preparation is delayed.","createdAt":"2026-05-13"}
+]
