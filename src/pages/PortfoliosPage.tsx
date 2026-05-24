@@ -2,24 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Card, SectionHeader } from '../components/ui'
 import { fetchMock, simulatePortfolioEvent } from '../lib/mockService'
-import DonutChart from '../components/charts/DonutChart'
-import TimeSeriesChart from '../components/charts/TimeSeriesChart'
 import { Portfolio } from '../types/portfolio'
 import { PortfolioSnapshot } from '../types/portfolioSnapshot'
 import { Client } from '../types/client'
-
-function Sparkline({ values }: { values: number[] }) {
-  const w = 120
-  const h = 32
-  const max = Math.max(...values, 1)
-  const min = Math.min(...values, 0)
-  const points = values.map((v, i) => `${(i / (values.length - 1)) * w},${h - (v - min) / (max - min || 1) * h}`).join(' ')
-  return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <polyline fill="none" stroke="#60a5fa" strokeWidth={2} points={points} />
-    </svg>
-  )
-}
 
 export default function PortfoliosPage() {
   const { clientId } = useParams()
@@ -38,6 +23,11 @@ export default function PortfoliosPage() {
   const incompleteClients = useMemo(() => clients.filter((client) => client.onboardingStatus === 'incomplete').length, [clients])
 
   const clientPortfolio = useMemo(() => portfolios.find((p) => p.clientId === clientId) || null, [portfolios, clientId])
+
+  const clientNameMap = useMemo(
+    () => Object.fromEntries(clients.map((client) => [client.id, client.name])),
+    [clients]
+  )
 
   const topHoldings = useMemo(() => {
     const map = new Map<string, { ticker: string; value: number }>()
@@ -87,8 +77,10 @@ export default function PortfoliosPage() {
                 </div>
               </div>
               <div>
-                <div className="flex items-center gap-4">
-                  <TimeSeriesChart values={aumSeries} width={160} height={48} />
+                <div className="space-y-3">
+                  <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 text-sm text-slate-300">
+                    Historical AUM snapshots are available in the table below for manual review.
+                  </div>
                   <button className="rounded-2xl bg-brand-500 px-4 py-2 text-slate-900 font-semibold" onClick={handleSim}>Simulate</button>
                 </div>
               </div>
@@ -98,17 +90,25 @@ export default function PortfoliosPage() {
 
           <Card>
             <SectionHeader title="AUM history" subtitle="Recent portfolio snapshots" />
-            <div className="mt-4">
-              <TimeSeriesChart values={aumSeries} width={320} height={120} />
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {aumSnapshots.slice(0, 4).map((snapshot) => (
-                  <div key={snapshot.date} className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
-                    <div className="text-slate-400 text-xs">{snapshot.date}</div>
-                    <div className="mt-2 text-lg font-semibold text-white">${snapshot.aum.toLocaleString('en-US')}</div>
-                    <div className="mt-1 text-slate-500 text-sm">{snapshot.notes}</div>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[560px] text-left text-sm text-slate-300">
+                <thead>
+                  <tr className="border-b border-slate-800 text-slate-400">
+                    <th className="px-3 py-3">Date</th>
+                    <th className="px-3 py-3">AUM</th>
+                    <th className="px-3 py-3">Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {aumSnapshots.slice(0, 8).map((snapshot) => (
+                    <tr key={snapshot.date} className="border-b border-slate-800 hover:bg-slate-900/70">
+                      <td className="px-3 py-3">{snapshot.date}</td>
+                      <td className="px-3 py-3">${snapshot.aum.toLocaleString('en-US')}</td>
+                      <td className="px-3 py-3 text-slate-400">{snapshot.notes}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </Card>
 
@@ -119,14 +119,12 @@ export default function PortfoliosPage() {
                 <div key={p.clientId} className="rounded-2xl border border-slate-800 bg-slate-950 p-4 flex items-center justify-between">
                   <div>
                     <div className="text-slate-400 text-xs">Client</div>
-                    <div className="mt-1 font-medium text-slate-100">{p.clientId}</div>
+                    <div className="mt-1 font-medium text-slate-100">{clientNameMap[p.clientId] || p.clientId}</div>
                   </div>
                   <div className="text-right">
                     <div className="text-slate-400 text-xs">Balance</div>
                     <div className="mt-1 text-lg font-semibold">${p.accounts.reduce((s, a) => s + (a.balance || 0), 0).toLocaleString('en-US')}</div>
-                    <div className="mt-2">
-                      <TimeSeriesChart values={p.accounts.map((a) => a.balance || 0)} width={160} height={36} />
-                    </div>
+                    <div className="mt-2 text-sm text-slate-400">Balance breakdown requires manual account review.</div>
                   </div>
                 </div>
               ))}
@@ -135,7 +133,7 @@ export default function PortfoliosPage() {
 
           {clientId && clientPortfolio && (
             <Card>
-              <SectionHeader title="Portfolio Detail" subtitle={`Client ${clientId}`} />
+              <SectionHeader title="Portfolio Detail" subtitle={`Client ${clientNameMap[clientId] || clientId}`} />
               <div className="mt-4">
                 {clientPortfolio.accounts.map((a) => (
                   <div key={a.accountId} className="mb-4">
@@ -159,7 +157,7 @@ export default function PortfoliosPage() {
                               <td className="px-3 py-3 text-slate-400">{h.name}</td>
                               <td className="px-3 py-3">{h.quantity}</td>
                               <td className="px-3 py-3">${(h.marketValue || 0).toLocaleString('en-US')}</td>
-                              <td className="px-3 py-3"><Sparkline values={[ (h.marketValue || 0) * 0.9, (h.marketValue || 0) * 0.95, h.marketValue || 0 ]} /></td>
+                              <td className="px-3 py-3 text-slate-400">Recent price movement visible in statements.</td>
                             </tr>
                           ))}
                         </tbody>
@@ -176,16 +174,13 @@ export default function PortfoliosPage() {
           <Card>
             <SectionHeader title="Top holdings" subtitle="Across all clients" />
             <div className="mt-4 space-y-3">
-              <DonutChart slices={topHoldings.map((h, i) => ({ label: h.ticker, value: h.value, color: undefined }))} size={160} stroke={20} />
+              <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 text-sm text-slate-300">
+                Holdings summary is provided for manual reconciliation and does not include a consolidated graph.
+              </div>
               {topHoldings.map((h) => (
-                <div key={h.ticker} className="rounded-2xl border border-slate-800 bg-slate-950 p-3 flex items-center justify-between">
-                  <div>
-                    <div className="text-slate-400 text-xs">{h.ticker}</div>
-                    <div className="font-medium text-slate-100">${h.value.toLocaleString('en-US')}</div>
-                  </div>
-                  <div>
-                    <Sparkline values={[h.value * 0.92, h.value * 0.98, h.value]} />
-                  </div>
+                <div key={h.ticker} className="rounded-2xl border border-slate-800 bg-slate-950 p-3">
+                  <div className="text-slate-400 text-xs">{h.ticker}</div>
+                  <div className="mt-1 font-medium text-slate-100">${h.value.toLocaleString('en-US')}</div>
                 </div>
               ))}
             </div>

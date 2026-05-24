@@ -6,7 +6,6 @@ import { ServiceRequest } from '../types/serviceRequest'
 import { Portfolio } from '../types/portfolio'
 import { PortfolioSnapshot } from '../types/portfolioSnapshot'
 import { Badge, Card } from '../components/ui'
-import TimeSeriesChart from '../components/charts/TimeSeriesChart'
 
 export default function DashboardPage() {
   const [advisor, setAdvisor] = useState<Advisor | null>(null)
@@ -59,25 +58,13 @@ export default function DashboardPage() {
       .slice(0, 5)
   }, [clients, portfolios])
 
-  const aumMiniSeries = React.useMemo(() => {
-    if (aumSnapshots.length) {
-      return aumSnapshots
-        .slice()
-        .reverse()
-        .map((snapshot) => snapshot.aum)
-        .slice(-8)
-    }
-    if (aum === null) return []
-    return Array.from({ length: 8 }).map((_, i) => Math.round(aum * (0.95 + 0.05 * Math.sin(i))))
-  }, [aum, aumSnapshots])
-
   return (
     <div className="space-y-6">
       <header className="grid gap-4 md:grid-cols-[1.1fr_0.9fr] md:items-end">
         <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Advisor dashboard</p>
-          <h1 className="mt-2 text-3xl font-semibold text-white">Workstation overview</h1>
-          <p className="mt-2 text-slate-400">A consolidated view of client activity, service requests, and advisor priorities.</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Legacy Operations Console</p>
+          <h1 className="mt-2 text-3xl font-semibold text-white">Advisor workstation — current state</h1>
+          <p className="mt-2 text-slate-400">A manual, disconnected operational workspace for account lookup, client calls, and CRM tasks.</p>
         </div>
         <div className="flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-950 p-4 shadow-soft sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -95,6 +82,34 @@ export default function DashboardPage() {
 
       <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-4">
+          <Card>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-semibold text-white">Legacy access panel</h2>
+                <p className="mt-2 text-slate-400">Open separate screens for accounts, client records, CRM, and requests.</p>
+              </div>
+              <Badge variant="info">Manual workflow</Badge>
+            </div>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <a href="/accounts" target="_blank" rel="noreferrer" className="rounded-2xl border border-slate-800 bg-slate-950 p-4 text-slate-100 hover:border-brand-500 hover:bg-slate-900 transition">
+                <div className="font-semibold">Account Lookup</div>
+                <div className="text-slate-400 text-sm">Search account numbers one by one in a separate screen.</div>
+              </a>
+              <a href="/net-worth" target="_blank" rel="noreferrer" className="rounded-2xl border border-slate-800 bg-slate-950 p-4 text-slate-100 hover:border-brand-500 hover:bg-slate-900 transition">
+                <div className="font-semibold">Net Worth Worksheet</div>
+                <div className="text-slate-400 text-sm">Manual spreadsheet-style calculation before client calls.</div>
+              </a>
+              <a href="/clients" target="_blank" rel="noreferrer" className="rounded-2xl border border-slate-800 bg-slate-950 p-4 text-slate-100 hover:border-brand-500 hover:bg-slate-900 transition">
+                <div className="font-semibold">Client Search</div>
+                <div className="text-slate-400 text-sm">Open client records in separate tabs for disconnected account work.</div>
+              </a>
+              <a href="/crm" target="_blank" rel="noreferrer" className="rounded-2xl border border-slate-800 bg-slate-950 p-4 text-slate-100 hover:border-brand-500 hover:bg-slate-900 transition">
+                <div className="font-semibold">CRM</div>
+                <div className="text-slate-400 text-sm">Navigate notes, tasks, and service requests in separate modules.</div>
+              </a>
+            </div>
+          </Card>
+
           <Card>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -125,51 +140,58 @@ export default function DashboardPage() {
               <Badge variant="info">Top 5</Badge>
             </div>
             <div className="mt-6 space-y-3">
-              {topClientsByAum.map((client) => (
-                <div key={client.clientId} className="rounded-2xl border border-slate-800 bg-slate-950 p-4 flex items-center justify-between">
-                  <div>
-                    <p className="text-slate-100 font-medium">{client.name}</p>
-                    <p className="text-slate-500 text-sm">{client.clientId}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-slate-100 font-semibold">${client.aum.toLocaleString('en-US', { maximumFractionDigits: 2 })}</p>
-                    <p className="text-slate-400 text-xs">Balance</p>
-                  </div>
-                </div>
-              ))}
+              <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950">
+                <table className="w-full table-auto text-left text-sm text-slate-300">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-400">
+                      <th className="px-3 py-3">Client</th>
+                      <th className="px-3 py-3">Account ID</th>
+                      <th className="px-3 py-3">Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {topClientsByAum.map((client) => (
+                      <tr key={client.clientId} className="border-b border-slate-800 hover:bg-slate-900/80">
+                        <td className="px-3 py-3 text-slate-100">{client.name}</td>
+                        <td className="px-3 py-3">{client.clientId}</td>
+                        <td className="px-3 py-3">${client.aum.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </Card>
 
-            <Card>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-slate-400 text-xs uppercase tracking-[0.18em]">Advisor AUM</div>
-                  <div className="mt-2 text-2xl font-semibold">${aum !== null ? aum.toLocaleString('en-US', { maximumFractionDigits: 2 }) : '—'}</div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                      <TimeSeriesChart values={aumMiniSeries} width={120} height={36} />
-                      <button
-                        className="rounded-2xl bg-brand-500 px-3 py-1 text-slate-900 font-semibold"
-                        onClick={async () => {
-                          const r = await simulatePortfolioEvent()
-                          setSimMessage(r.details)
-                          fetchMock<Portfolio[]>('portfolios').then((list) => {
-                            setPortfolios(list)
-                            setAum(list.reduce((s, p) => s + p.accounts.reduce((a: number, ac: any) => a + (ac.balance || 0), 0), 0))
-                          })
-                          fetchMock<PortfolioSnapshot[]>('portfolioSnapshots').then((snapshots) => {
-                            setAumSnapshots(snapshots)
-                            if (snapshots.length) setAum(snapshots[0].aum)
-                          })
-                          setTimeout(() => setSimMessage(null), 4000)
-                        }}
-                      >
-                        Simulate
-                      </button>
-                      {simMessage && <div className="text-sm text-slate-300">{simMessage}</div>}
-                </div>
+          <Card>
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="text-slate-400 text-xs uppercase tracking-[0.18em]">Advisor AUM</div>
+                <div className="mt-2 text-2xl font-semibold">${aum !== null ? aum.toLocaleString('en-US', { maximumFractionDigits: 2 }) : '—'}</div>
               </div>
-            </Card>
+              <div className="flex flex-col items-end gap-2">
+                <button
+                  className="rounded-2xl bg-brand-500 px-3 py-1 text-slate-900 font-semibold"
+                  onClick={async () => {
+                    const r = await simulatePortfolioEvent()
+                    setSimMessage(r.details)
+                    fetchMock<Portfolio[]>('portfolios').then((list) => {
+                      setPortfolios(list)
+                      setAum(list.reduce((s, p) => s + p.accounts.reduce((a: number, ac: any) => a + (ac.balance || 0), 0), 0))
+                    })
+                    fetchMock<PortfolioSnapshot[]>('portfolioSnapshots').then((snapshots) => {
+                      setAumSnapshots(snapshots)
+                      if (snapshots.length) setAum(snapshots[0].aum)
+                    })
+                    setTimeout(() => setSimMessage(null), 4000)
+                  }}
+                >
+                  Simulate
+                </button>
+                {simMessage && <div className="text-sm text-slate-300">{simMessage}</div>}
+              </div>
+            </div>
+          </Card>
 
           <Card>
             <div className="flex flex-wrap items-center justify-between gap-4">

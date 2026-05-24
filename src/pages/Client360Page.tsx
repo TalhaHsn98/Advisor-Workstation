@@ -4,8 +4,6 @@ import { Badge, Button, Card, SectionHeader } from '../components/ui'
 import { fetchMock, createCrmNote } from '../lib/mockService'
 import { Client } from '../types/client'
 import { Portfolio, Holding } from '../types/portfolio'
-import DonutChart from '../components/charts/DonutChart'
-import { Household } from '../types/household'
 import { CRMNote } from '../types/crmNote'
 import { ServiceRequest } from '../types/serviceRequest'
 import { AlertItem, Interaction } from '../types'
@@ -20,12 +18,29 @@ export default function Client360Page() {
   const { clientId } = useParams()
   const [client, setClient] = useState<Client | null>(null)
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null)
-  const [household, setHousehold] = useState<Household | null>(null)
   const [alerts, setAlerts] = useState<AlertItem[]>([])
   const [interactions, setInteractions] = useState<Interaction[]>([])
   const [requests, setRequests] = useState<ServiceRequest[]>([])
   const [notes, setNotes] = useState<CRMNote[]>([])
   const [draftNote, setDraftNote] = useState('')
+  const [tier, setTier] = useState<string>('')
+
+  const TIERS_KEY = 'advisor-client-tiers'
+
+  useEffect(() => {
+    if (!clientId) return
+    try {
+      const raw = localStorage.getItem(TIERS_KEY)
+      if (raw) {
+        const map = JSON.parse(raw || '{}') as Record<string, string>
+        setTier(map[clientId] || '')
+      } else {
+        setTier('')
+      }
+    } catch (e) {
+      setTier('')
+    }
+  }, [clientId])
 
   useEffect(() => {
     if (!clientId) return
@@ -38,11 +53,6 @@ export default function Client360Page() {
     fetchMock<Portfolio[]>('portfolios').then((list) => {
       const found = list.find((item) => item.clientId === clientId) || null
       setPortfolio(found)
-    })
-
-    fetchMock<Household[]>('households').then((list) => {
-      const found = list.find((item) => item.id === client?.householdId || clientId) || null
-      setHousehold(found)
     })
 
     fetchMock<AlertItem[]>('alerts').then(setAlerts)
@@ -259,29 +269,46 @@ export default function Client360Page() {
                 <div className="text-slate-500 text-xs uppercase tracking-[0.18em]">Phone</div>
                 <div>{client.phone || 'N/A'}</div>
               </div>
-              <div>
-                <div className="text-slate-500 text-xs uppercase tracking-[0.18em]">Household</div>
-                <div>{household?.householdName || 'N/A'}</div>
-              </div>
+                <div>
+                  <div className="text-slate-500 text-xs uppercase tracking-[0.18em]">Service Tier (manual)</div>
+                  <div className="mt-2 flex gap-2 items-center">
+                    <input value={tier} onChange={(e) => setTier(e.target.value)} placeholder="e.g. A / B / C" className="rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-slate-100" />
+                    <button
+                      onClick={() => {
+                        try {
+                          const id = clientId || client.id
+                          if (!id) return alert('No client selected')
+                          const raw = localStorage.getItem(TIERS_KEY)
+                          const map = raw ? JSON.parse(raw) : {}
+                          map[id] = tier.trim()
+                          localStorage.setItem(TIERS_KEY, JSON.stringify(map))
+                          alert('Tier saved locally (manual AS-IS)')
+                        } catch (e) {
+                          alert('Failed to save tier')
+                        }
+                      }}
+                      className="rounded-2xl bg-brand-500 px-3 py-1 text-slate-900"
+                    >
+                      Save
+                    </button>
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">Free-text tier stored locally to reflect manual AS-IS practice.</div>
+                </div>
             </div>
           </div>
 
           <div className="rounded-3xl border border-slate-800 bg-[#0f1724] p-6 shadow-sm">
-            <h2 className="text-xl font-semibold">Allocation</h2>
-            <div className="mt-4">
+            <h2 className="text-xl font-semibold">Asset breakdown</h2>
+            <div className="mt-4 space-y-3 text-slate-300">
               {allocationSlices.length ? (
-                <div className="flex items-center gap-4">
-                  <DonutChart slices={allocationSlices} size={140} stroke={18} />
-                  <div className="text-slate-300 space-y-2">
-                    {allocationSlices.map((s) => (
-                      <div key={s.label} className="text-sm">
-                        <strong className="text-slate-100">{s.label}</strong>: ${s.value.toLocaleString('en-US')}
-                      </div>
-                    ))}
+                allocationSlices.map((s) => (
+                  <div key={s.label} className="rounded-2xl bg-slate-950 p-3">
+                    <div className="text-slate-100 font-medium">{s.label}</div>
+                    <div className="text-slate-400 text-sm">${s.value.toLocaleString('en-US')}</div>
                   </div>
-                </div>
+                ))
               ) : (
-                <div className="text-slate-400">Allocation data not available.</div>
+                <div className="text-slate-400">Allocation details are only available in account statements.</div>
               )}
             </div>
           </div>

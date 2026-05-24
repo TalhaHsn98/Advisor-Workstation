@@ -7,6 +7,7 @@ import { Client } from '../types/client'
 import { CRMNote } from '../types/crmNote'
 import { Interaction, TaskItem } from '../types'
 import { ServiceRequest } from '../types/serviceRequest'
+import { AlternativeInvestment, AttachmentItem } from '../types/alternativeInvestment'
 
 export default function CRMPage() {
   const { clientId: routeClientId } = useParams<{ clientId?: string }>()
@@ -148,6 +149,89 @@ export default function CRMPage() {
     })
   }
 
+  // Alternative investments (AS-IS) - stored per-client in localStorage
+  const ALT_KEY_PREFIX = 'advisor-alt-investments-'
+  const [altData, setAltData] = useState<{ investments: AlternativeInvestment[]; attachments: AttachmentItem[] }>({ investments: [], attachments: [] })
+  const [newInvName, setNewInvName] = useState('')
+  const [newInvCustodian, setNewInvCustodian] = useState('')
+  const [newInvCommitment, setNewInvCommitment] = useState<string>('')
+  const [newInvDistributions, setNewInvDistributions] = useState<string>('')
+  const [newInvValuation, setNewInvValuation] = useState<string>('')
+  const [newInvNotes, setNewInvNotes] = useState('')
+  const [uploadCustodian, setUploadCustodian] = useState('')
+
+  useEffect(() => {
+    if (!selectedClientId) return
+    try {
+      const raw = localStorage.getItem(ALT_KEY_PREFIX + selectedClientId)
+      if (raw) setAltData(JSON.parse(raw))
+      else setAltData({ investments: [], attachments: [] })
+    } catch (e) {
+      setAltData({ investments: [], attachments: [] })
+    }
+  }, [selectedClientId])
+
+  const saveAltToStorage = (next: { investments: AlternativeInvestment[]; attachments: AttachmentItem[] }) => {
+    if (!selectedClientId) return
+    try {
+      localStorage.setItem(ALT_KEY_PREFIX + selectedClientId, JSON.stringify(next))
+      setAltData(next)
+    } catch (e) {
+      alert('Failed to save alternative investments locally')
+    }
+  }
+
+  const addInvestment = () => {
+    if (!newInvName.trim() || !selectedClientId) return alert('Provide a name and select a client')
+    const inv: AlternativeInvestment = {
+      id: `alt-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      name: newInvName.trim(),
+      custodian: newInvCustodian.trim() || undefined,
+      commitment: newInvCommitment ? Number(newInvCommitment) : undefined,
+      distributions: newInvDistributions ? Number(newInvDistributions) : undefined,
+      lastValuation: newInvValuation ? Number(newInvValuation) : undefined,
+      lastUpdated: new Date().toISOString(),
+      notes: newInvNotes || undefined,
+      attachments: []
+    }
+    const next = { investments: [inv, ...altData.investments], attachments: altData.attachments }
+    saveAltToStorage(next)
+    setNewInvName('')
+    setNewInvCustodian('')
+    setNewInvCommitment('')
+    setNewInvDistributions('')
+    setNewInvValuation('')
+    setNewInvNotes('')
+  }
+
+  const deleteInvestment = (id: string) => {
+    const next = { investments: altData.investments.filter((i) => i.id !== id), attachments: altData.attachments }
+    saveAltToStorage(next)
+  }
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !selectedClientId) return
+    if (file.type !== 'application/pdf') return alert('Only PDF statements are supported in this AS-IS view')
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = reader.result as string
+      const att: AttachmentItem = { id: `att-${Date.now()}-${Math.floor(Math.random() * 1000)}`, name: file.name, uploadedAt: new Date().toISOString(), custodian: uploadCustodian || undefined, dataUrl }
+      const next = { investments: altData.investments, attachments: [att, ...altData.attachments] }
+      saveAltToStorage(next)
+      setUploadCustodian('')
+      // clear file input
+      if (e.target) e.target.value = ''
+      alert('Statement uploaded (stored locally)')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const deleteAttachment = (id: string) => {
+    const next = { investments: altData.investments, attachments: altData.attachments.filter((a) => a.id !== id) }
+    saveAltToStorage(next)
+  }
+
   return (
     <div className="space-y-6">
       <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -210,6 +294,106 @@ export default function CRMPage() {
               <CRMNotesList notes={notesByClient} onChange={setNotes} />
             </div>
           </Card>
+              <Card>
+                <SectionHeader title="Alternative Investments (AS-IS)" subtitle="Manual tracking of private/alternative assets. No automation." />
+                <div className="mt-4 space-y-4">
+                  {!selectedClient ? (
+                    <div className="text-slate-400">Select a client to view alternative investments.</div>
+                  ) : (
+                    <>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <label className="text-slate-400 text-sm">Name</label>
+                          <input value={newInvName} onChange={(e) => setNewInvName(e.target.value)} className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-slate-100" />
+                          <label className="text-slate-400 text-sm">Custodian / Source</label>
+                          <input value={newInvCustodian} onChange={(e) => setNewInvCustodian(e.target.value)} className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-slate-100" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-slate-400 text-sm">Commitment</label>
+                          <input value={newInvCommitment} onChange={(e) => setNewInvCommitment(e.target.value)} className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-slate-100" />
+                          <label className="text-slate-400 text-sm">Distributions</label>
+                          <input value={newInvDistributions} onChange={(e) => setNewInvDistributions(e.target.value)} className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-slate-100" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-slate-400 text-sm">Last valuation</label>
+                        <div className="flex gap-3 mt-2">
+                          <input value={newInvValuation} onChange={(e) => setNewInvValuation(e.target.value)} className="rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-slate-100" />
+                          <button onClick={addInvestment} className="rounded-2xl bg-brand-500 px-4 py-2 text-slate-900">Add investment</button>
+                        </div>
+                        <label className="text-slate-400 text-sm mt-2 block">Notes</label>
+                        <textarea value={newInvNotes} onChange={(e) => setNewInvNotes(e.target.value)} rows={3} className="w-full mt-2 rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-slate-100" />
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-800" />
+
+                      <div>
+                        <h3 className="text-lg font-medium">Statement uploads</h3>
+                        <p className="text-slate-400 text-sm">Upload PDF statements manually. Files are stored locally in your browser (AS-IS).</p>
+                        <div className="mt-3 flex gap-2 items-center">
+                          <input type="text" placeholder="Custodian / Source" value={uploadCustodian} onChange={(e) => setUploadCustodian(e.target.value)} className="rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-slate-100" />
+                          <input type="file" accept="application/pdf" onChange={onFileChange} className="text-sm text-slate-400" />
+                        </div>
+                        <div className="mt-4 space-y-2">
+                          {altData.attachments.length ? (
+                            altData.attachments.map((att) => (
+                              <div key={att.id} className="flex items-center justify-between rounded-2xl bg-slate-950 p-3">
+                                <div>
+                                  <div className="font-medium text-slate-100">{att.name}</div>
+                                  <div className="text-xs text-slate-400">{att.custodian || 'Unknown source'} • {new Date(att.uploadedAt).toLocaleString()}</div>
+                                </div>
+                                <div className="flex gap-2">
+                                  <a href={att.dataUrl} target="_blank" rel="noreferrer" className="text-slate-300 underline">Open</a>
+                                  <a href={att.dataUrl} download={att.name} className="text-slate-300 underline">Download</a>
+                                  <button onClick={() => deleteAttachment(att.id)} className="text-red-400">Delete</button>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-slate-400">No statements uploaded for this client.</div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3 className="text-lg font-medium">Tracked investments</h3>
+                        <div className="mt-3 overflow-x-auto">
+                          <table className="w-full table-auto text-left text-sm text-slate-300">
+                            <thead>
+                              <tr className="border-b border-slate-800 text-slate-400">
+                                <th className="px-3 py-2">Name</th>
+                                <th className="px-3 py-2">Custodian</th>
+                                <th className="px-3 py-2">Commitment</th>
+                                <th className="px-3 py-2">Distributions</th>
+                                <th className="px-3 py-2">Valuation</th>
+                                <th className="px-3 py-2">Last updated</th>
+                                <th className="px-3 py-2">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {altData.investments.length ? (
+                                altData.investments.map((inv) => (
+                                  <tr key={inv.id} className="border-b border-slate-800 hover:bg-slate-900/80">
+                                    <td className="px-3 py-2 text-slate-100">{inv.name}</td>
+                                    <td className="px-3 py-2">{inv.custodian || '(none)'}</td>
+                                    <td className="px-3 py-2">{inv.commitment?.toLocaleString() || '(blank)'}</td>
+                                    <td className="px-3 py-2">{inv.distributions?.toLocaleString() || '(blank)'}</td>
+                                    <td className="px-3 py-2">{inv.lastValuation?.toLocaleString() || '(blank)'}</td>
+                                    <td className="px-3 py-2">{inv.lastUpdated ? new Date(inv.lastUpdated).toLocaleDateString() : '(blank)'}</td>
+                                    <td className="px-3 py-2"><button onClick={() => deleteInvestment(inv.id)} className="text-red-400">Delete</button></td>
+                                  </tr>
+                                ))
+                              ) : (
+                                <tr><td colSpan={7} className="px-3 py-4 text-slate-400">No alternative investments tracked for this client.</td></tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </Card>
         </div>
 
         <div className="space-y-4">
@@ -261,30 +445,6 @@ export default function CRMPage() {
             </div>
           </Card>
 
-          <Card>
-            <SectionHeader title="Next action queue" subtitle="Priority items for your next advisory workflow." />
-            <div className="mt-6 space-y-3">
-              {nextActionQueue.length ? (
-                nextActionQueue.map((item) => (
-                  <div key={item.id} className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-slate-100 font-medium">{item.title}</p>
-                        <p className="text-slate-400 text-sm">{item.channel} • {item.client}</p>
-                      </div>
-                      <Badge variant={item.priority === 'high' ? 'danger' : item.priority === 'medium' ? 'warning' : 'success'}>{item.priority}</Badge>
-                    </div>
-                    <div className="mt-3 flex items-center justify-between text-sm text-slate-500">
-                      <span>{item.status}</span>
-                      <span>Due {item.due}</span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-slate-400">No immediate actions to display.</div>
-              )}
-            </div>
-          </Card>
 
           <Card>
             <SectionHeader title="Follow-up Tasks" subtitle="Current open follow-ups for active clients." />

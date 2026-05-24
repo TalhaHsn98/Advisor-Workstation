@@ -4,6 +4,13 @@ import { NavLink } from 'react-router-dom'
 const links = [
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/clients', label: 'Clients' },
+  { to: '/accounts', label: 'Account Lookup' },
+  { to: '/portfolio-login', label: 'Portfolio Login' },
+  { to: '/net-worth', label: 'Net Worth Worksheet' },
+  { to: '/sticky-notes', label: 'Sticky Notes' },
+  { to: '/reminders', label: 'Reminders' },
+  { to: '/rmd-scan', label: 'RMD Scanner' },
+  { to: '/tier-report', label: 'Tiering (AS-IS)' },
   { to: '/portfolios', label: 'Portfolios' },
   { to: '/crm', label: 'CRM' },
   { to: '/service-requests', label: 'Service Requests' },
